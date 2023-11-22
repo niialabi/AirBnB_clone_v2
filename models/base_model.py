@@ -18,10 +18,9 @@ class BaseModel:
             kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
                                                      '%Y-%m-%dT%H:%M:%S.%f')
             kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
+                                                         '%Y-%m-%dT%H:%M:%S.%f')
             self.__dict__.update(kwargs)
-
+   
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
@@ -32,6 +31,10 @@ class BaseModel:
         from models import storage
         self.updated_at = datetime.now()
         storage.save()
+
+    def update(self, *args, **kwargs):
+        """Updates the object parameters"""
+        self.__dict__.update(kwargs)
 
     def to_dict(self):
         """Convert instance into dict format"""
