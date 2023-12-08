@@ -18,6 +18,19 @@ for file in "${files[@]}"; do
         fi
         sudo touch "$file"
         echo "Hello World!!!" | sudo tee -a "$file"
+	new_content=$(cat <<'EOF'
+<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>
+EOF
+)
+
+# Write the new HTML content to the file
+echo "$new_content" | sudo tee "$file" > /dev/null
 done
 
 link="/data/web_static/current"
