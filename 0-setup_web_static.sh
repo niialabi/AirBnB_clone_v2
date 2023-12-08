@@ -34,12 +34,12 @@ echo "$new_content" | sudo tee "$file" > /dev/null
 done
 
 link="/data/web_static/current"
-target="/data/web_static/releases/test/"
+target="/data/web_static/releases/test"
 
 if [ -L "$link" ]; then
     rm "$link"
 fi
-ln -s "$target" "$link"
+ln -sfn "$target" "$link"
 
 sudo chown -R ubuntu:ubuntu /data
 
