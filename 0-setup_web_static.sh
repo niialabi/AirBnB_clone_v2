@@ -68,3 +68,5 @@ EOF
 
 # Append the new configuration to the Nginx configuration file
 echo "$new_config" | sudo tee -a "$nginx_config" > /dev/null
+
+sudo service nginx restart
