@@ -1,4 +1,7 @@
+#!/usr/bin/python3
 from fabric.api import run, local
+"""fabfile that compresses web_static dir"""
+
 
 def do_pack():
     """fab file that compreses dir"""
@@ -10,4 +13,3 @@ def do_pack():
     if local(f"tar -czvf {store_path}/{file_name} web_static"):
         return file_name
     return None
-
