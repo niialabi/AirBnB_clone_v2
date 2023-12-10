@@ -42,7 +42,7 @@ def do_deploy(archive_path):
         return False
 
 
-@task
+@runs_once
 def do_pack():
     """fab file that compreses dir"""
     current_datetime = local('date +"%Y%m%d%H%M%S"', capture=True)
