@@ -4,11 +4,10 @@
 from flask import Flask
 
 app = Flask(__name__)
-app.url_map.strict_slashes=False
 
-@app.route("/")
+@app.route("/", strict_slashes=False)
 def hello():
-    """ main page - displays Hello HBNB! """
+    """ displays Hello HBNB! """
     return "Hello HBNB!"
 
 if __name__=="__main__":
