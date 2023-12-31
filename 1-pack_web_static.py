@@ -11,5 +11,5 @@ def do_pack():
     store_path = "./versions"
 
     if local(f"tar -czvf {store_path}/{file_name} web_static"):
-        return file_name
+        return ("versions/{}".format(file_name))
     return None

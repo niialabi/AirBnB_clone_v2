@@ -14,10 +14,10 @@ env.user = 'ubuntu'
 def deploy():
     """auto live deploy to all servers"""
     archive_path = do_pack()
-    if archive_path is None:
+    if archive_path:
+        return do_deploy(archive_path)
+    else:
         return False
-    return do_deploy(archive_path)
-
 
 
 @task

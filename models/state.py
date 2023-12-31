@@ -3,12 +3,17 @@
 from models.base_model import BaseModel
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import relationship
 
+from sqlalchemy.orm import relationship
 import os
 
-env_v = os.environ.get('HBNB_TYPE_STORAGE')
 Base = declarative_base()
+env_v = os.environ.get('HBNB_TYPE_STORAGE')
+
+
+from models import storage
+from models.city import City
+
 
 class State(BaseModel, Base):
     """ State class """
@@ -22,9 +27,7 @@ class State(BaseModel, Base):
 
         @property
         def cities(self):
-            from models.__init__ import storage
             from models.city import City
-
             obj_list = []
             stor = storage.all(City)
             for key, value in stor.items():
