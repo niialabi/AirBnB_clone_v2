@@ -1,25 +1,18 @@
 #!/usr/bin/python3
-""" State Module for HBNB project """
-from models.base_model import BaseModel
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime
-
+""" State Module 4 HBNb """
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 import os
 
-Base = declarative_base()
-env_v = os.environ.get('HBNB_TYPE_STORAGE')
-
-
-from models import storage
-from models.city import City
+env_value = os.environ.get("HBNB_TYPE_STORAGE")
 
 
 class State(BaseModel, Base):
-    """ State class """
+    """State class"""
 
     __tablename__ = "states"
-    if env_v == "db":
+    if env_value == "db":
         name = Column(String(128), nullable=False)
         cities = relationship("City", backref="state")
     else:
@@ -27,10 +20,12 @@ class State(BaseModel, Base):
 
         @property
         def cities(self):
+            from models.__init__ import storage
             from models.city import City
+
             obj_list = []
-            stor = storage.all(City)
-            for key, value in stor.items():
+            strg = storage.all(City)
+            for key, value in strg.items():
                 if self.id == value.state_id:
                     obj_list.append(value)
             return obj_list

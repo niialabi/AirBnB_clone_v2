@@ -1,89 +1,62 @@
-"""new engine"""
+#!/usr/bin/python3
+"""module that defines the db storage """
 from sqlalchemy import create_engine
-from sqlalchemy import MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+from sqlalchemy import MetaData
 import os
-from models.city import City
 
+user = os.environ.get("HBNB_MYSQL_USER")
+pwd = os.environ.get("HBNB_MYSQL_PWD")
+host = os.environ.get("HBNB_MYSQL_HOST")
+database = os.environ.get("HBNB_MYSQL_DB")
+env = os.environ.get("HBNB_ENV")
 
-
-user = os.environ.get('HBNB_MYSQL_USER')
-pswd = os.environ.get('HBNB_MYSQL_PWD')
-host = os.environ.get('HBNB_MYSQL_HOST')
-database = os.environ.get('HBNB_MYSQL_DB')
-envir = os.environ.get('HBNB_ENV')
 
 class DBStorage:
-    """implement database storage"""
+    """An implementation of the Database Storage"""
+
     __engine = None
     __session = None
+    Session = None
 
     def __init__(self):
-        """instantiating db storage"""
+        """the class constructor for the database storage implementation"""
         self.__engine = create_engine(
-            "mysql+mysqldb://{}:{}@{}/{}".format(user, pswd, host, database),
-                            pool_pre_ping=True,
+            "mysql+mysqldb://{}:{}@{}/{}".format(user, pwd, host, database),
+            pool_pre_ping=True,
         )
-        Session = sessionmaker(bind=self.__engine)
-        self.__session = Session()
-
-        if envir == "test":
+        if env == "test":
             metadata = MetaData()
             metadata.drop_all(self.__engine, checkfirst=False)
 
     def all(self, cls=None):
-        """public inst method query all class from db"""
-        from models.user import User
-        from models.state import State
-        from models.city import City
+        """a public instance method that returns a dictionary
+        consisting of all queried class from the database"""
         from models.amenity import Amenity
-        from models.place import Place
-        from models.review import Review
-
-        if cls is None:
-            cls = [User, State, City, Amenity, Place, Review]
-            query = []
-            for cl in cls:
-                query.extend(self.__session.query(cl).all())
-        else:
-            query = self.__session.query(cls).all()    
-        
-        cls_objs = {}
-        for itm in query:
-            cls_objs[itm.to_dict()["__class__"] + "." + itm.id] = itm
-        return cls_objs
-
-    def new(self, obj):
-        """add objt to current db session"""
-        self.__session.add(obj)
-
-    def save(self):
-        """commit all changes to current db session"""
-        self.__session.commit()
-
-    def delete(self, obj=None):
-        """delet from current db session"""
-        if obj:
-            self.__session.delete(obj)
-    
-    def reload(self):
-        """method creates all tables in db"""
         from models.user import User
+        from models.place import Place
         from models.state import State, Base
         from models.city import City, Base
-        from models.amenity import Amenity
-        from models.place import Place
         from models.review import Review
 
-        Base.metadata.create_all(self.__engine)
+        if not self.__session:
+            self.start_session()
 
-        DBStorage.Session = scoped_session(
-            sessionmaker(bind=self.__engine, expire_on_commit=False)
-        )
-        self.__session = DBStorage,Session()
+        if cls is None:
+            cls = [State, City, User, Place, Review, Amenity]
+            query = []
+            for c in cls:
+                query.extend(self.__session.query(c).all())
+        else:
+            query = self.__session.query(cls).all()
+        cls_objs = {}
+        for obj in query:
+            cls_objs[obj.to_dict()["__class__"] + "." + obj.id] = obj
+        return cls_objs
 
     def search(self, cls=None, **kwargs):
-        """ search method """
+        """  """
         objs = self.all(cls)
         for key, obj in objs.items():
             flag = 0
@@ -95,6 +68,53 @@ class DBStorage:
                 return obj
         return None
 
+    def new(self, obj):
+        """a public instance method that adds a
+        new object to a pending state of the database transaction"""
+        self.__session.add(obj)
+
+    def save(self):
+        """a public instance method that persists the actions
+        performed in the current transaction"""
+        self.__session.commit()
+
+    def delete(self, obj=None):
+        """a public instance method that deletes a created instance
+        from the database"""
+        if obj:
+            self.__session.delete(obj)
+
+    def call(self, string):
+        """a public instance method used for executing
+        sql commands on the class's engine"""
+        self.__engine.execute(string)
+
+    def start_session(self):
+        """a public instance method used for starting a new session"""
+        self.__session = DBStorage.Session()
+
+    def stop_session(self):
+        """a public instance method used for ending a session"""
+        self.save()
+        self.__session.close()
+
+    def reload(self):
+        """a public instance method that initializes
+        a thread-safe version of a session"""
+        from models.user import User
+        from models.amenity import Amenity
+        from models.place import Place
+        from models.state import State, Base
+        from models.city import City, Base
+        from models.review import Review
+
+        Base.metadata.create_all(self.__engine)
+
+        DBStorage.Session = scoped_session(sessionmaker(bind=self.__engine))
+        self.__session = DBStorage.Session()
+
+
+
     def close(self):
-        """ calls remove() method on the private session attribute """
+        """call remove() method on self.__session"""
         self.__session.close()
